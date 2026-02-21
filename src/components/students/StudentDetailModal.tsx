@@ -7,7 +7,7 @@ import type { EventItem } from "../../types/events";
 
 const API_BASE = "http://192.168.77.16:5050";
 
-function imgUrl(path: string | null | undefined): string | null {
+export function imgUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   const token = localStorage.getItem("token");
   // If already absolute

@@ -1,25 +1,10 @@
 import type { SignalREvent } from "../../types/dashboard";
 import { EGender } from "../../types/enums";
-
-const API_BASE = "http://192.168.77.16:5050";
+import { imgUrl } from "../students/StudentDetailModal";
 
 interface Props {
   event: SignalREvent;
 }
-
-const attendanceLabels: Record<number, string> = {
-  0: "Noma'lum",
-  1: "Keldi",
-  2: "Kelmadi",
-  3: "Kechikdi",
-};
-
-const attendanceColors: Record<number, { border: string; text: string }> = {
-  0: { border: "border-gray-500", text: "text-gray-500" },
-  1: { border: "border-green-500", text: "text-green-500" },
-  2: { border: "border-red-500", text: "text-red-500" },
-  3: { border: "border-yellow-500", text: "text-yellow-500" },
-};
 
 function getSimilarityColor(pct: number) {
   if (pct >= 80) return "text-green-500";
@@ -27,22 +12,19 @@ function getSimilarityColor(pct: number) {
   return "text-red-500";
 }
 
-function formatEventTime(dateStr: string) {
+function formatBirthDate(dateStr: string): string {
+  if (!dateStr) return "—";
   try {
     const d = new Date(dateStr);
-    return d.toLocaleTimeString("uz-UZ", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    const now = new Date();
+    const age = now.getFullYear() - d.getFullYear();
+    return String(age);
   } catch {
     return "—";
   }
 }
 
 export default function EventCard({ event }: Props) {
-  const status =
-    attendanceColors[event.attendanceStatus] ?? attendanceColors[0];
   const genderLabel =
     event.gender === EGender.Male
       ? "Erkak"
@@ -50,62 +32,50 @@ export default function EventCard({ event }: Props) {
         ? "Ayol"
         : "—";
   const hasFace = !!event.faceImagePath;
-  const hasFull = !!event.fullImagePath;
+  const hasStudent = !!event.fullImagePath;
 
   return (
-    <div
-      className={`bg-card-bg rounded-2xl p-4 border-2 ${status.border} transition-all`}
-    >
-      <div className="flex gap-3">
-        {/* Left: Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span
-              className={`text-lg font-bold ${getSimilarityColor(event.similarity)}`}
-            >
-              {event.similarity}%
-            </span>
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full ${status.text} bg-input-bg`}
-            >
-              {attendanceLabels[event.attendanceStatus] ?? "Noma'lum"}
-            </span>
+    <div className="bg-card-bg rounded-2xl p-4 border border-input-border">
+      {/* Photos row with similarity between */}
+      <div className="flex items-center gap-3 mb-3">
+        {/* Student / full image */}
+        {hasStudent ? (
+          <img
+            src={imgUrl(event.fullImagePath) || undefined}
+            alt=""
+            className="w-24 h-28 rounded-xl object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-24 h-28 rounded-xl bg-input-bg flex items-center justify-center text-text-secondary text-xl font-bold shrink-0">
+            {event.firstName?.charAt(0) ?? "?"}
           </div>
+        )}
 
-          <div className="space-y-1.5">
-            <Row label="Sertifikat" value={event.certificateNumber} />
-            {event.firstName && <Row label="Ismi" value={event.firstName} />}
-            {event.lastName && (
-              <Row label="Familiyasi" value={event.lastName} />
-            )}
-            <Row label="Jinsi" value={genderLabel} />
-            <Row label="Vaqt" value={formatEventTime(event.eventDate)} />
-          </div>
-        </div>
+        {/* Similarity between photos */}
+        <span
+          className={`text-xl font-bold ${getSimilarityColor(event.similarity)}`}
+        >
+          {event.similarity}%
+        </span>
 
-        {/* Right: Photos */}
-        <div className="flex flex-col gap-2 items-end shrink-0">
-          {hasFace ? (
-            <img
-              src={`${API_BASE}${event.faceImagePath}`}
-              alt="face"
-              className="w-16 h-16 rounded-lg object-cover"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-lg bg-input-bg flex items-center justify-center text-text-secondary text-lg font-bold">
-              {event.certificateNumber?.slice(-2)}
-            </div>
-          )}
-          {hasFull ? (
-            <img
-              src={`${API_BASE}${event.fullImagePath}`}
-              alt="full"
-              className="w-16 h-16 rounded-lg object-cover opacity-80"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-lg bg-input-bg opacity-60" />
-          )}
-        </div>
+        {/* Face image */}
+        {hasFace ? (
+          <img
+            src={imgUrl(event.faceImagePath) || undefined}
+            alt=""
+            className="w-24 h-28 rounded-xl object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-24 h-28 rounded-xl bg-input-bg shrink-0" />
+        )}
+      </div>
+
+      {/* Info rows */}
+      <div className="space-y-1.5">
+        <Row label="Ismi" value={event.firstName || "—"} />
+        <Row label="Familiyasi" value={event.lastName || "—"} />
+        <Row label="Yoshi" value={formatBirthDate(event.birthDate)} />
+        <Row label="Jinsi" value={genderLabel} />
       </div>
     </div>
   );
@@ -114,8 +84,8 @@ export default function EventCard({ event }: Props) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-text-secondary text-xs">{label}:</span>
-      <span className="text-text-primary text-xs font-medium truncate ml-2">
+      <span className="text-text-secondary text-sm">{label}:</span>
+      <span className="text-text-primary text-sm font-semibold truncate ml-2">
         {value}
       </span>
     </div>
