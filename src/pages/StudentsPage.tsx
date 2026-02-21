@@ -4,6 +4,7 @@ import { ChevronDown, Search, Plus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Pagination from "../components/Pagination";
 import CreateStudentModal from "../components/students/CreateStudentModal";
+import StudentDetailModal from "../components/students/StudentDetailModal";
 import { studentsApi } from "../api/students";
 import { examObjectApi } from "../api/cameras";
 import {
@@ -13,6 +14,9 @@ import {
   regionLabels,
   periodLabels,
 } from "../types/enums";
+import { API_BASE } from "../components/Navbar";
+
+import type { Student } from "../types/students";
 
 /* ── Region options ── */
 const regionOptions = Object.entries(ERegion).map(([, value]) => ({
@@ -104,6 +108,7 @@ export default function StudentsPage() {
   const [pageSize] = useState(20);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   /* ── Filter state ── */
   const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
@@ -374,7 +379,7 @@ export default function StudentsPage() {
         {/* Add button */}
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
+          className="hidden bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-5 py-2.5 text-sm font-medium transition-colors"
         >
           <span>Qo'shish</span>
           <Plus size={16} />
@@ -419,14 +424,15 @@ export default function StudentsPage() {
                 {students.map((s) => (
                   <tr
                     key={s.id}
-                    className="border-b border-input-border/50 hover:bg-white/2 transition-colors"
+                    onClick={() => setSelectedStudent(s)}
+                    className="border-b border-input-border/50 hover:bg-white/2 transition-colors cursor-pointer"
                   >
                     {/* Name + avatar */}
                     <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
                         {s.photoPath ? (
                           <img
-                            src={s.photoPath}
+                            src={`${API_BASE}/api/${s.photoPath}?token=${localStorage.getItem("token")}`}
                             alt=""
                             className="w-8 h-8 rounded-full object-cover shrink-0"
                           />
@@ -480,7 +486,10 @@ export default function StudentsPage() {
                     <td className="px-6 py-3">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleDelete(s.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(s.id);
+                          }}
                           className="w-8 h-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-red-400 hover:bg-white/5 transition-colors"
                         >
                           <Trash2 size={16} />
@@ -523,6 +532,14 @@ export default function StudentsPage() {
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
       />
+
+      {/* ── Student Detail Modal ── */}
+      {selectedStudent && (
+        <StudentDetailModal
+          student={selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
     </div>
   );
 }
