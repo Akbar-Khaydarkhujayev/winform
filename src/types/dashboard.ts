@@ -38,6 +38,10 @@ export interface SignalREvent {
   regionId: number;
   attendanceStatus: number;
   examingPeriod: number;
+  isCrossRegion: boolean;
+  currentRegion: number | null;
+  expectedRegion: number;
+  dbImagePath: string;
   faceImagePath: string;
   fullImagePath: string;
   panoramaImagePath: string;

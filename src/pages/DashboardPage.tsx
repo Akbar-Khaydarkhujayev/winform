@@ -34,9 +34,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4 h-full overflow-hidden">
+    <div className="flex gap-4 h-full overflow-hidden">
       {/* ── Left Column ── */}
-      <div className="col-span-3 flex flex-col gap-4 min-h-0">
+      <div className="flex-1 flex flex-col gap-4 min-h-0 min-w-0">
         <div className="flex-3 min-h-0">
           <StatsLineChart data={data} />
         </div>
@@ -49,7 +49,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Center Column ── */}
-      <div className="col-span-6 flex flex-col gap-4 min-h-0">
+      <div className="flex-2 flex flex-col gap-4 min-h-0 min-w-0">
         {/* Gender cards + Shifts */}
         <div className="flex gap-4 w-full shrink-0">
           <div className="flex flex-col gap-2 w-full">
@@ -71,7 +71,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Right Column ── */}
-      <div className="col-span-3 flex flex-col gap-4 min-h-0">
+      <div className="w-80 shrink-0 flex flex-col gap-4 min-h-0 overflow-y-auto">
         {events.length > 0 ? (
           events.map((event, idx) => (
             <EventCard key={event.certificateNumber ?? idx} event={event} />

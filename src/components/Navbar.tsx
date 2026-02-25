@@ -49,7 +49,7 @@ export default function Navbar({ user }: NavbarProps) {
   return (
     <header className="bg-card-bg border-b border-input-border px-6 py-3 flex items-center justify-between">
       {/* Logo */}
-      <div className="bg-accent/10 border border-accent/30 rounded-lg px-4 py-1.5">
+      <div className="bg-accent/10 border border-accent/30 rounded-lg px-4 py-1.5 cursor-pointer select-none">
         <span className="text-accent font-bold text-lg tracking-wider">
           WIN FORM
         </span>
